@@ -12,6 +12,8 @@ sitename=""                                         # Title of site "Example Sit
 slackchannel=""                                     # Slack Channel #example
 slackuri=""                                         # URI for Slack WebHook "https://hooks.slack.com/services/xxxxx"
 discorduri=""                                       # URI for Discord WebHook "https://discordapp.com/api/webhooks/xxxxx"
+telegramuri=""                                      # URI for Telegram WebHook "https://api.telegram.org/botxxxxxxx:xxxxxxxxxxxxx/sendMessage"
+telegramid=""                                       # Telegram chat id (user id)
 
 
 ###########################################
@@ -103,6 +105,9 @@ case "$update" in
       "content" : "'"$sitename"' DDNS Update Failed: '$record_name': '$record_identifier' ('$ip')."
     }' $discorduri
   fi
+  if [[ $telegramuri != "" ]]; then
+    curl --silent --insecure -G --data-urlencode "chat_id=$telegramid" --data-urlencode "text=$sitename DDNS Update Failed: $record_name, $record_identifier ($ip)" "$telegramuri"
+  fi
   exit 1;;
 *)
   logger "DDNS Updater: $ip $record_name DDNS updated."
@@ -118,6 +123,9 @@ case "$update" in
     --data-raw '{
       "content" : "'"$sitename"' Updated: '$record_name''"'"'s'""' new IP Address is '$ip'"
     }' $discorduri
+  fi
+  if [[ $telegramuri != "" ]]; then
+    curl --silent --insecure -G --data-urlencode "chat_id=$telegramid" --data-urlencode "text=$sitename Updated: $record_name new IP address is $ip" "$telegramuri"
   fi
   exit 0;;
 esac
